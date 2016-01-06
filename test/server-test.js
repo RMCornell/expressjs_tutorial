@@ -36,6 +36,8 @@ describe('Server', () => {
       });
     });
 
+
+
     it('should have a body with the name of the application', (done) => {
       var title = app.locals.title;
 
@@ -46,8 +48,44 @@ describe('Server', () => {
         done();
       });
     })
+  });
+
+  describe('POST /pizzas', () => {
+
+    beforeEach(() => {
+      app.locals.pizzas = {};
+    });
+
+    it('should not return 404', (done) => {
+      this.request.post('/pizzas', (error, response) => {
+        if(error) { done(error); }
+        assert.notEqual(response.statusCode, 404);
+        done();
+      })
+
+    });
+
+    it('should receive and store data', (done) => {
+      var validPizza = {
+        pizza: {
+          name: "Vegan Pizza",
+          toppings: ['mushrooms', 'onions', 'garlic', 'black olives']
+        }
+      };
+
+      this.request.post('/pizzas', { form: validPizza }, (error, response) => {
+        if(error) { done(error); }
+
+        var pizzaCount = Object.keys(app.locals.pizza).length;
+
+        assert.equal(pizzaCount, 1, 'Expected 1 Pizzas, found ${pizzaCount}');
+        done();
+      });
 
 
+      assert(true);
+      done();
+    });
   });
 
 
