@@ -1,14 +1,15 @@
 const assert = require('assert');
 const request = require('request');
+const fixtures = require('./fixtures')
 const app = require('../server');
 
 describe('Server', () => {
 
-  before(done => {
+  before((done) => {
     this.port = 9876;
 
     this.server = app.listen(this.port, (err, result) => {
-      if(err) { return done(err) }
+      if (err) { return done(err); }
       done();
     });
 
@@ -21,7 +22,6 @@ describe('Server', () => {
     this.server.close();
   });
 
-
   it('should exist', () => {
     assert(app);
   });
@@ -30,24 +30,23 @@ describe('Server', () => {
 
     it('should return a 200', (done) => {
       this.request.get('/', (error, response) => {
-        if(error) { done(error); }
+        if (error) { done(error); }
         assert.equal(response.statusCode, 200);
         done();
       });
     });
 
-
-
     it('should have a body with the name of the application', (done) => {
       var title = app.locals.title;
 
       this.request.get('/', (error, response) => {
-        if(error) { done(error); }
+        if (error) { done(error); }
         assert(response.body.includes(title),
-                '"${response.body}" does not include "${title}".');
+          `"${response.body}" does not include "${title}".`);
         done();
       });
-    })
+    });
+
   });
 
   describe('POST /pizzas', () => {
@@ -58,35 +57,26 @@ describe('Server', () => {
 
     it('should not return 404', (done) => {
       this.request.post('/pizzas', (error, response) => {
-        if(error) { done(error); }
+        if (error) { done(error); }
         assert.notEqual(response.statusCode, 404);
         done();
-      })
-
+      });
     });
 
     it('should receive and store data', (done) => {
-      var validPizza = {
-        pizza: {
-          name: "Vegan Pizza",
-          toppings: ['mushrooms', 'onions', 'garlic', 'black olives']
-        }
-      };
+      var payload = { pizza: fixtures.validPizza };
 
-      this.request.post('/pizzas', { form: validPizza }, (error, response) => {
-        if(error) { done(error); }
+      this.request.post('/pizzas', { form: payload }, (error, response) => {
+        if (error) { done(error); }
 
-        var pizzaCount = Object.keys(app.locals.pizza).length;
+        var pizzaCount = Object.keys(app.locals.pizzas).length;
 
-        assert.equal(pizzaCount, 1, 'Expected 1 Pizzas, found ${pizzaCount}');
+        assert.equal(pizzaCount, 1, `Expected 1 pizzas, found ${pizzaCount}`);
+
         done();
       });
-
-
-      assert(true);
-      done();
     });
-  });
 
+  });
 
 });
