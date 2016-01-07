@@ -49,6 +49,46 @@ describe('Server', () => {
 
   });
 
+  describe('GET /pizzas/:id', () => {
+
+    beforeEach(() => {
+      app.locals.pizzas.validPizza = fixtures.validPizza;
+    });
+
+    it('should not return 404', (done) => {
+      this.request.get('/pizzas/pizza', (error, response) => {
+        if (error) { done(error); }
+        assert.notEqual(response.statusCode, 404);
+        done();
+      });
+    });
+
+
+    it('should return a page that has the title of the pizza', (done) => {
+      var pizza = app.locals.pizzas.validPizza;
+
+      this.request.get('/pizzas/pizza', (error, response) => {
+        if (error) { done(error); }
+        assert(response.body.includes(pizza.name),
+          `"${response.body}" does not include "${pizza.name}".`);
+        done();
+      });
+    });
+
+    it('should redirect the user to their new pizza', (done) => {
+      var payload = { pizza: fixtures.validPizza };
+
+      this.request.post('/pizzas', { form: payload }, (error, response) => {
+        if (error) { done(error); }
+        var newPizzaId = Object.keys(app.locals.pizzas)[0];
+        assert.equal(response.headers.location, '/pizzas/' + newPizzaId);
+        done();
+      });
+    });
+
+  });
+
+
   describe('POST /pizzas', () => {
 
     beforeEach(() => {
